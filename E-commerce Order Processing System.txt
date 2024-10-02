@@ -1,0 +1,129 @@
+4. E-commerce Order Processing System
+------------------------------------------
+Description: Build a system to handle order processing, track shipments, and manage customer data. Key Features:
+
+Complex joins and subqueries.
+Triggers for order status updates.
+Stored procedures for order processing.
+Performance tuning for large datasets.
+
+
+
+Creating an E-commerce Order Processing System using Oracle involves several key components. Here's a detailed breakdown of how you can implement this project, focusing on the key features you mentioned:
+
+  1. Complex Joins and Subqueries
+
+**Example**: Retrieve order details along with customer information and shipment status.
+
+  
+SELECT o.order_id, o.order_date, c.customer_name, s.shipment_status
+FROM orders o
+JOIN customers c ON o.customer_id = c.customer_id
+LEFT JOIN shipments s ON o.order_id = s.order_id
+WHERE o.order_date BETWEEN TO_DATE('2024-01-01', 'YYYY-MM-DD') AND TO_DATE('2024-12-31', 'YYYY-MM-DD');
+  
+
+  2. Triggers for Order Status Updates
+
+**Example**: Create a trigger to update the order status when a shipment is dispatched.
+
+  
+CREATE OR REPLACE TRIGGER trg_update_order_status
+AFTER INSERT ON shipments
+FOR EACH ROW
+BEGIN
+  UPDATE orders
+  SET order_status = 'Shipped'
+  WHERE order_id = :NEW.order_id;
+END;
+  
+
+  3. Stored Procedures for Order Processing
+
+**Example**: Stored procedure to process a new order.
+
+  
+CREATE OR REPLACE PROCEDURE process_order (
+  p_order_id IN NUMBER,
+  p_customer_id IN NUMBER,
+  p_order_date IN DATE,
+  p_total_amount IN NUMBER
+) AS
+BEGIN
+  INSERT INTO orders (order_id, customer_id, order_date, total_amount, order_status)
+  VALUES (p_order_id, p_customer_id, p_order_date, p_total_amount, 'Processing');
+
+  -- Additional logic for inventory update, payment processing, etc.
+  
+  COMMIT;
+END;
+  
+
+  4. Performance Tuning for Large Datasets
+
+**Example**: Using indexes and partitioning to improve query performance.
+
+**Creating Indexes**:
+  
+CREATE INDEX idx_orders_customer_id ON orders(customer_id);
+CREATE INDEX idx_shipments_order_id ON shipments(order_id);
+  
+
+**Partitioning Tables**:
+  
+CREATE TABLE orders (
+  order_id NUMBER,
+  customer_id NUMBER,
+  order_date DATE,
+  total_amount NUMBER,
+  order_status VARCHAR2(20)
+)
+PARTITION BY RANGE (order_date) (
+  PARTITION p1 VALUES LESS THAN (TO_DATE('2024-01-01', 'YYYY-MM-DD')),
+  PARTITION p2 VALUES LESS THAN (TO_DATE('2025-01-01', 'YYYY-MM-DD'))
+);
+  
+
+  Additional Considerations
+
+- **Data Integrity**: Ensure referential integrity using foreign keys.
+- **Error Handling**: Implement robust error handling in your PL/SQL procedures.
+- **Security**: Use roles and privileges to secure sensitive data.
+
+  Example Schema
+
+**Customers Table**:
+  
+CREATE TABLE customers (
+  customer_id NUMBER PRIMARY KEY,
+  customer_name VARCHAR2(100),
+  email VARCHAR2(100),
+  phone VARCHAR2(15)
+);
+  
+
+**Orders Table**:
+  
+CREATE TABLE orders (
+  order_id NUMBER PRIMARY KEY,
+  customer_id NUMBER,
+  order_date DATE,
+  total_amount NUMBER,
+  order_status VARCHAR2(20),
+  FOREIGN KEY (customer_id) REFERENCES customers(customer_id)
+);
+  
+
+**Shipments Table**:
+  
+CREATE TABLE shipments (
+  shipment_id NUMBER PRIMARY KEY,
+  order_id NUMBER,
+  shipment_date DATE,
+  shipment_status VARCHAR2(20),
+  FOREIGN KEY (order_id) REFERENCES orders(order_id)
+);
+  
+
+This project will demonstrate your ability to handle complex SQL queries, use PL/SQL for business logic, and optimize performance for large datasets. Let me know if you need further details or assistance with any specific part of the project!
+
