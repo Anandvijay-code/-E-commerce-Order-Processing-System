@@ -1,4 +1,4 @@
-Got it! Based on the project description you provided, here's an architecture diagram for an **E-commerce Order Processing System** using Oracle:
+architecture diagram for an **E-commerce Order Processing System** using Oracle:
 
   **Architecture Components:**
 
